@@ -2,7 +2,6 @@
 
 import { SnackGallery } from "@/components/snack-gallery";
 import { Button } from "@/components/ui/button";
-import { useAccount } from "@/lib/aztec";
 import { AnimatePresence, motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
@@ -12,37 +11,8 @@ import ReactPlayer from "react-player";
 export default function Home() {
   const [stage, setStage] = useState<"intro" | "video" | "gallery">("intro");
   const [muted, setMuted] = useState(false);
-  const [videoPreloaded, setVideoPreloaded] = useState(false);
   const playerRef = useRef<ReactPlayer>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const account = useAccount();
-
-  // Preload the video
-  useEffect(() => {
-    const preloadVideo = async () => {
-      try {
-        // Create a temporary player to preload the video
-        const tempPlayer = new ReactPlayer({
-          url: "https://www.youtube.com/watch?v=qlwIPx6BZJ0",
-          playing: true,
-          muted: true,
-          config: {
-            youtube: {
-              playerVars: { preload: true },
-            },
-          },
-        });
-
-        setVideoPreloaded(true);
-      } catch (error) {
-        console.error("Error preloading video:", error);
-        // If preloading fails, still allow the app to function
-        setVideoPreloaded(true);
-      }
-    };
-
-    preloadVideo();
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -155,10 +125,9 @@ export default function Home() {
               >
                 <Button
                   onClick={handleEnterClick}
-                  disabled={!videoPreloaded}
                   className="text-lg sm:text-xl px-8 py-6 bg-[#e76526] hover:bg-[#d55415] text-white rounded-full shadow-[0_0_20px_rgba(231,101,38,0.4)] border border-[#e76526]/20"
                 >
-                  {videoPreloaded ? "Enter zkSnacks" : "Loading..."}
+                  Enter zkSnacks
                 </Button>
               </motion.div>
             </motion.div>
