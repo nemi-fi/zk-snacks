@@ -173,7 +173,7 @@ export default function Home() {
                   className="absolute bottom-4 right-4 z-20 p-2 sm:p-3 rounded-full bg-[#4780ba] text-white hover:bg-[#3a6fa3] transition-colors"
                   aria-label={muted ? "Unmute" : "Mute"}
                 >
-                  {muted ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                  {!muted ? <Volume2 size={18} /> : <VolumeX size={18} />}
                 </button>
               </div>
             </motion.div>
