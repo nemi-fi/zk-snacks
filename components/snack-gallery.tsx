@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAccount, wallet } from "@/lib/aztec";
 import { getNftContract } from "@/lib/nft-contract";
-import { shortenAddress } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { getAztecNode, shortenAddress, simulatePublicCalls } from "@/lib/utils";
+import { Account } from "@nemi-fi/wallet-sdk";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -139,6 +140,27 @@ export function SnackGallery() {
   const account = useAccount();
   const isMobile = useIsMobile();
 
+  const snacksExistQuery = useQuery({
+    queryKey: ["snacks", snacks.map((s) => s.tokenId)],
+    queryFn: async () => {
+      const aztecNode = await getAztecNode();
+      const readonlyNftContract = await getNftContract({
+        aztecNode,
+      } as Account);
+      const calls = await Promise.all(
+        snacks.map(async (s) =>
+          readonlyNftContract.methods.nft_exists(s.tokenId).request(),
+        ),
+      );
+      const results = await simulatePublicCalls(aztecNode, calls);
+      const ret: Record<number, boolean> = Object.fromEntries(
+        snacks.map((snack, i) => [snack.tokenId, results[i][0].toBool()]),
+      );
+      console.log("ret", ret);
+      return ret;
+    },
+  });
+
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const { current } = scrollContainerRef;
@@ -194,7 +216,13 @@ export function SnackGallery() {
           style={{ scrollbarWidth: "none" }}
         >
           {snacks.map((snack) => {
-            return <SnackItem key={snack.tokenId} snack={snack} />;
+            return (
+              <SnackItem
+                key={snack.tokenId}
+                snack={snack}
+                snacksExistQuery={snacksExistQuery}
+              />
+            );
           })}
         </div>
 
@@ -209,25 +237,14 @@ export function SnackGallery() {
     </div>
   );
 }
-function SnackItem({ snack }: { snack: Snack }) {
+function SnackItem({
+  snack,
+  snacksExistQuery,
+}: {
+  snack: Snack;
+  snacksExistQuery: UseQueryResult<Record<number, boolean>>;
+}) {
   const account = useAccount();
-  const snackExistsQuery = useQuery<boolean>({
-    queryKey: ["snack", snack.tokenId],
-    queryFn: async () => {
-      if (!account) {
-        return false;
-      }
-      const nftContract = await getNftContract(account);
-      console.log("getting exists", snack.tokenId);
-      const exists = (await nftContract.methods
-        .nft_exists(snack.tokenId)
-        .simulate()) as unknown as boolean;
-      console.log("exists", exists);
-      return exists;
-    },
-    enabled: !!account,
-  });
-  console.log("snackExistsQuery.data", snackExistsQuery.data);
   const colorStyles = getColorStyles(snack.color);
 
   async function handleClaim() {
@@ -309,30 +326,30 @@ function SnackItem({ snack }: { snack: Snack }) {
           <h3 className="text-xl font-bold text-[#333] mb-2">{snack.name}</h3>
           <p className="text-[#555] text-sm mb-5">{snack.description}</p>
 
-          <WalletConnect>
-            {snackExistsQuery.isLoading ? (
-              <Button
-                disabled
-                className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
-              >
-                Loading...
-              </Button>
-            ) : snackExistsQuery.data ? (
-              <Button
-                disabled
-                className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
-              >
-                Claimed
-              </Button>
-            ) : (
+          {snacksExistQuery.isLoading ? (
+            <Button
+              disabled
+              className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
+            >
+              Loading...
+            </Button>
+          ) : snacksExistQuery.data?.[snack.tokenId] ? (
+            <Button
+              disabled
+              className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
+            >
+              Claimed
+            </Button>
+          ) : (
+            <WalletConnect>
               <LoadingButton
                 onClick={handleClaim}
                 className={`w-full ${colorStyles.button} text-white shadow-md`}
               >
                 Get
               </LoadingButton>
-            )}
-          </WalletConnect>
+            </WalletConnect>
+          )}
         </div>
       </div>
     </motion.div>

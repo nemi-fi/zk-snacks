@@ -20,7 +20,7 @@ export function WalletConnect({ children }: { children: React.ReactNode }) {
   return (
     <>
       <WalletConnectModal open={open} onClose={() => setOpen(false)} />
-      <Button onClick={() => setOpen(true)}>Connect wallet</Button>
+      <Button onClick={() => setOpen(true)}>Connect wallet to claim</Button>
     </>
   );
 }
