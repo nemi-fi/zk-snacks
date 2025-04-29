@@ -29,7 +29,7 @@ export default function Home() {
     intervalRef.current = setInterval(() => {
       if (playerRef.current) {
         const currentTime = playerRef.current.getCurrentTime();
-        if (currentTime >= 4) {
+        if (currentTime >= 3.8) {
           // Automatically go to gallery after 4 seconds
           setStage("gallery");
           if (intervalRef.current) {
