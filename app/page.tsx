@@ -111,7 +111,7 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src="/images/commit-mints.png"
+                  src="/images/noir-coffee.png"
                   alt="zkSnack"
                   width={256}
                   height={256}
