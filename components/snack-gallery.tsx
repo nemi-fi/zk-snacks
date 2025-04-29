@@ -40,14 +40,6 @@ const snacks: Snack[] = [
     image: "/images/obsidion-ashes.png",
   },
   {
-    tokenId: 5,
-    name: "Baked Noirwhal",
-    description: "Served on the Poseidon2 trident",
-    claimed: false,
-    color: "blue",
-    image: "/images/narwhal.png",
-  },
-  {
     tokenId: 3,
     name: "Nemi-sis Cake",
     description: "Taste of private DeFi",
@@ -78,6 +70,14 @@ const snacks: Snack[] = [
     claimed: false,
     color: "orange",
     image: "/images/hash-brownie.png",
+  },
+  {
+    tokenId: 5,
+    name: "Baked Narwhal",
+    description: "Served on the Poseidon2 trident",
+    claimed: false,
+    color: "blue",
+    image: "/images/narwhal.png",
   },
   {
     tokenId: 1,
