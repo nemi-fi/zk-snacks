@@ -1,8 +1,9 @@
 import { AztecWalletSdk, obsidion } from "@nemi-fi/wallet-sdk";
 import { useAccount as useAccountBase } from "@nemi-fi/wallet-sdk/react";
+import { chain } from "./utils";
 
 export const wallet = new AztecWalletSdk({
-  aztecNode: "https://l2.testnet.nemi.fi",
+  aztecNode: chain.node,
   connectors: [obsidion({})],
 });
 

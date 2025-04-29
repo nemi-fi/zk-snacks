@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAccount, wallet } from "@/lib/aztec";
+import Image from "next/image";
 import { useState } from "react";
 
 export function WalletConnect({ children }: { children: React.ReactNode }) {
@@ -56,6 +57,12 @@ export function WalletConnectModal({
               }
             }}
           >
+            <Image
+              src={connector.icon}
+              alt={connector.name}
+              width={20}
+              height={20}
+            />
             {isConnecting ? "Connecting..." : connector.name}
           </Button>
         ))}

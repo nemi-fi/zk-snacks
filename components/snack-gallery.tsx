@@ -4,11 +4,14 @@ import { WalletConnect } from "@/app/WalletConnect";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAccount, wallet } from "@/lib/aztec";
+import { getNftContract } from "@/lib/nft-contract";
 import { shortenAddress } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { LoadingButton } from "./LoadingButton";
 
 type Snack = {
   tokenId: number;
@@ -132,18 +135,9 @@ const getColorStyles = (color: "orange" | "blue" | "pink") => {
 };
 
 export function SnackGallery() {
-  const account = useAccount();
-  const [claimedSnacks, setClaimedSnacks] = useState<number[]>(
-    snacks.filter((snack) => snack.claimed).map((snack) => snack.tokenId),
-  );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const account = useAccount();
   const isMobile = useIsMobile();
-
-  const handleClaim = (id: number) => {
-    if (!claimedSnacks.includes(id)) {
-      setClaimedSnacks([...claimedSnacks, id]);
-    }
-  };
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -200,100 +194,7 @@ export function SnackGallery() {
           style={{ scrollbarWidth: "none" }}
         >
           {snacks.map((snack) => {
-            const colorStyles = getColorStyles(snack.color);
-
-            return (
-              <motion.div
-                key={snack.tokenId}
-                className="flex-shrink-0 snap-center"
-                whileHover={{ y: -10, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="relative flex flex-col items-center">
-                  {/* Plate */}
-                  <div className="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
-                    <motion.div
-                      className="absolute w-48 h-48 sm:w-56 sm:h-56 rounded-full"
-                      style={{
-                        background: colorStyles.bg,
-                        border: `1px solid ${colorStyles.border}`,
-                        boxShadow: `0 10px 30px ${colorStyles.shadow}`,
-                      }}
-                      animate={{
-                        boxShadow: [
-                          `0 10px 20px ${colorStyles.shadow}`,
-                          `0 10px 30px ${colorStyles.shadow}`,
-                          `0 10px 20px ${colorStyles.shadow}`,
-                        ],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Number.POSITIVE_INFINITY,
-                      }}
-                    />
-
-                    {/* Plate rim */}
-                    <motion.div
-                      className="absolute w-56 h-56 sm:w-64 sm:h-64 rounded-full overflow-hidden"
-                      style={{
-                        border: `2px solid ${colorStyles.border}`,
-                      }}
-                      animate={{
-                        boxShadow: [
-                          `0 0 15px ${colorStyles.shadow}`,
-                          `0 0 25px ${colorStyles.shadow}`,
-                          `0 0 15px ${colorStyles.shadow}`,
-                        ],
-                        y: ["0%", "-5%", "0%"],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Number.POSITIVE_INFINITY,
-                      }}
-                    >
-                      {/* zkSnack on top of plate */}
-                      <motion.div className="absolute">
-                        <Image
-                          width={500}
-                          height={500}
-                          src={snack.image || "/placeholder.svg"}
-                          alt={snack.name}
-                          className="object-contain drop-shadow-lg"
-                        />
-                      </motion.div>
-                    </motion.div>
-                  </div>
-
-                  {/* Text and button below plate */}
-                  <div className="text-center mt-4 w-56 sm:w-64">
-                    <h3 className="text-xl font-bold text-[#333] mb-2">
-                      {snack.name}
-                    </h3>
-                    <p className="text-[#555] text-sm mb-5">
-                      {snack.description}
-                    </p>
-
-                    <WalletConnect>
-                      {claimedSnacks.includes(snack.tokenId) ? (
-                        <Button
-                          disabled
-                          className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
-                        >
-                          Claimed
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handleClaim(snack.tokenId)}
-                          className={`w-full ${colorStyles.button} text-white shadow-md`}
-                        >
-                          Get
-                        </Button>
-                      )}
-                    </WalletConnect>
-                  </div>
-                </div>
-              </motion.div>
-            );
+            return <SnackItem key={snack.tokenId} snack={snack} />;
           })}
         </div>
 
@@ -306,5 +207,134 @@ export function SnackGallery() {
         </button>
       </div>
     </div>
+  );
+}
+function SnackItem({ snack }: { snack: Snack }) {
+  const account = useAccount();
+  const snackExistsQuery = useQuery<boolean>({
+    queryKey: ["snack", snack.tokenId],
+    queryFn: async () => {
+      if (!account) {
+        return false;
+      }
+      const nftContract = await getNftContract(account);
+      console.log("getting exists", snack.tokenId);
+      const exists = (await nftContract.methods
+        .nft_exists(snack.tokenId)
+        .simulate()) as unknown as boolean;
+      console.log("exists", exists);
+      return exists;
+    },
+    enabled: !!account,
+  });
+  console.log("snackExistsQuery.data", snackExistsQuery.data);
+  const colorStyles = getColorStyles(snack.color);
+
+  async function handleClaim() {
+    if (!account) {
+      alert("Please connect your account");
+      return;
+    }
+    const nftContract = await getNftContract(account);
+    const tx = nftContract.methods
+      .mint_private(account.address, snack.tokenId)
+      .send();
+    const hash = await tx.getTxHash();
+    alert(`Tx sent ${hash}`);
+  }
+
+  return (
+    <motion.div
+      className="flex-shrink-0 snap-center"
+      whileHover={{ y: -10, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      <div className="relative flex flex-col items-center">
+        {/* Plate */}
+        <div className="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+          <motion.div
+            className="absolute w-48 h-48 sm:w-56 sm:h-56 rounded-full"
+            style={{
+              background: colorStyles.bg,
+              border: `1px solid ${colorStyles.border}`,
+              boxShadow: `0 10px 30px ${colorStyles.shadow}`,
+            }}
+            animate={{
+              boxShadow: [
+                `0 10px 20px ${colorStyles.shadow}`,
+                `0 10px 30px ${colorStyles.shadow}`,
+                `0 10px 20px ${colorStyles.shadow}`,
+              ],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Number.POSITIVE_INFINITY,
+            }}
+          />
+
+          {/* Plate rim */}
+          <motion.div
+            className="absolute w-56 h-56 sm:w-64 sm:h-64 rounded-full overflow-hidden"
+            style={{
+              border: `2px solid ${colorStyles.border}`,
+            }}
+            animate={{
+              boxShadow: [
+                `0 0 15px ${colorStyles.shadow}`,
+                `0 0 25px ${colorStyles.shadow}`,
+                `0 0 15px ${colorStyles.shadow}`,
+              ],
+              y: ["0%", "-5%", "0%"],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Number.POSITIVE_INFINITY,
+            }}
+          >
+            {/* zkSnack on top of plate */}
+            <motion.div className="absolute">
+              <Image
+                width={500}
+                height={500}
+                src={snack.image || "/placeholder.svg"}
+                alt={snack.name}
+                className="object-contain drop-shadow-lg"
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Text and button below plate */}
+        <div className="text-center mt-4 w-56 sm:w-64">
+          <h3 className="text-xl font-bold text-[#333] mb-2">{snack.name}</h3>
+          <p className="text-[#555] text-sm mb-5">{snack.description}</p>
+
+          <WalletConnect>
+            {snackExistsQuery.isLoading ? (
+              <Button
+                disabled
+                className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
+              >
+                Loading...
+              </Button>
+            ) : snackExistsQuery.data ? (
+              <Button
+                disabled
+                className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
+              >
+                Claimed
+              </Button>
+            ) : (
+              <LoadingButton
+                onClick={handleClaim}
+                className={`w-full ${colorStyles.button} text-white shadow-md`}
+              >
+                Get
+              </LoadingButton>
+            )}
+          </WalletConnect>
+        </div>
+      </div>
+    </motion.div>
   );
 }
