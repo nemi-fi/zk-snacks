@@ -1,19 +1,21 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import ReactPlayer from "react-player"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { SnackGallery } from "@/components/snack-gallery"
-import { Volume2, VolumeX } from "lucide-react"
+import { SnackGallery } from "@/components/snack-gallery";
+import { Button } from "@/components/ui/button";
+import { useAccount } from "@/lib/aztec";
+import { AnimatePresence, motion } from "framer-motion";
+import { Volume2, VolumeX } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import ReactPlayer from "react-player";
 
 export default function Home() {
-  const [stage, setStage] = useState<"intro" | "video" | "gallery">("intro")
-  const [muted, setMuted] = useState(false)
-  const [videoPreloaded, setVideoPreloaded] = useState(false)
-  const playerRef = useRef<ReactPlayer>(null)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [stage, setStage] = useState<"intro" | "video" | "gallery">("intro");
+  const [muted, setMuted] = useState(false);
+  const [videoPreloaded, setVideoPreloaded] = useState(false);
+  const playerRef = useRef<ReactPlayer>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const account = useAccount();
 
   // Preload the video
   useEffect(() => {
@@ -29,60 +31,48 @@ export default function Home() {
               playerVars: { preload: true },
             },
           },
-        })
+        });
 
-        // Wait for the player to load
-        await new Promise((resolve) => {
-          tempPlayer.on("ready", () => {
-            // Play and immediately pause to buffer the video
-            tempPlayer.getInternalPlayer().playVideo()
-            setTimeout(() => {
-              tempPlayer.getInternalPlayer().pauseVideo()
-              resolve(true)
-            }, 100)
-          })
-        })
-
-        setVideoPreloaded(true)
+        setVideoPreloaded(true);
       } catch (error) {
-        console.error("Error preloading video:", error)
+        console.error("Error preloading video:", error);
         // If preloading fails, still allow the app to function
-        setVideoPreloaded(true)
+        setVideoPreloaded(true);
       }
-    }
+    };
 
-    preloadVideo()
-  }, [])
+    preloadVideo();
+  }, []);
 
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+        clearInterval(intervalRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   const handleEnterClick = () => {
-    setStage("video")
+    setStage("video");
 
     // Use setInterval to check video timestamp
     intervalRef.current = setInterval(() => {
       if (playerRef.current) {
-        const currentTime = playerRef.current.getCurrentTime()
+        const currentTime = playerRef.current.getCurrentTime();
         if (currentTime >= 4) {
           // Automatically go to gallery after 4 seconds
-          setStage("gallery")
+          setStage("gallery");
           if (intervalRef.current) {
-            clearInterval(intervalRef.current)
+            clearInterval(intervalRef.current);
           }
         }
       }
-    }, 100) // Check every 100ms
-  }
+    }, 100); // Check every 100ms
+  };
 
   const toggleMute = () => {
-    setMuted(!muted)
-  }
+    setMuted(!muted);
+  };
 
   return (
     <main className="relative min-h-screen w-full bg-[#f3eadf] overflow-hidden">
@@ -104,15 +94,15 @@ export default function Home() {
                 i % 3 === 0
                   ? "rgba(231, 101, 38, 0.1)"
                   : i % 3 === 1
-                    ? "rgba(71, 128, 186, 0.1)"
-                    : "rgba(233, 123, 160, 0.1)",
+                  ? "rgba(71, 128, 186, 0.1)"
+                  : "rgba(233, 123, 160, 0.1)",
               backdropFilter: "blur(8px)",
               border:
                 i % 3 === 0
                   ? "1px solid rgba(231, 101, 38, 0.2)"
                   : i % 3 === 1
-                    ? "1px solid rgba(71, 128, 186, 0.2)"
-                    : "1px solid rgba(233, 123, 160, 0.2)",
+                  ? "1px solid rgba(71, 128, 186, 0.2)"
+                  : "1px solid rgba(233, 123, 160, 0.2)",
             }}
             animate={{
               x: [0, Math.random() * 40 - 20],
@@ -159,7 +149,10 @@ export default function Home() {
                 />
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   onClick={handleEnterClick}
                   disabled={!videoPreloaded}
@@ -231,5 +224,5 @@ export default function Home() {
         </AnimatePresence>
       </div>
     </main>
-  )
+  );
 }

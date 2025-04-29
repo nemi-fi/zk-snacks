@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { WalletConnect } from "@/app/WalletConnect";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAccount, wallet } from "@/lib/aztec";
+import { shortenAddress } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { useRef, useState } from "react";
 
 type Snack = {
   id: number;
@@ -129,6 +132,7 @@ const getColorStyles = (color: "orange" | "blue" | "pink") => {
 };
 
 export function SnackGallery() {
+  const account = useAccount();
   const [claimedSnacks, setClaimedSnacks] = useState<number[]>(
     snacks.filter((snack) => snack.claimed).map((snack) => snack.id),
   );
@@ -166,6 +170,19 @@ export function SnackGallery() {
           Claim your cryptographically delicious treats. Each zkSnack proves you
           own it without revealing your identity.
         </p>
+        {account ? (
+          <p className="text-[#333] text-base sm:text-lg max-w-2xl mx-auto">
+            Connected account: {shortenAddress(account?.address?.toString())}
+            <Button
+              variant="destructive"
+              size="sm"
+              className="ml-2"
+              onClick={() => wallet.disconnect()}
+            >
+              Disconnect
+            </Button>
+          </p>
+        ) : null}
       </div>
 
       <div className="relative max-w-7xl mx-auto px-2 sm:px-4">
@@ -256,21 +273,23 @@ export function SnackGallery() {
                       {snack.description}
                     </p>
 
-                    {claimedSnacks.includes(snack.id) ? (
-                      <Button
-                        disabled
-                        className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
-                      >
-                        Claimed
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => handleClaim(snack.id)}
-                        className={`w-full ${colorStyles.button} text-white shadow-md`}
-                      >
-                        Get
-                      </Button>
-                    )}
+                    <WalletConnect>
+                      {claimedSnacks.includes(snack.id) ? (
+                        <Button
+                          disabled
+                          className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
+                        >
+                          Claimed
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleClaim(snack.id)}
+                          className={`w-full ${colorStyles.button} text-white shadow-md`}
+                        >
+                          Get
+                        </Button>
+                      )}
+                    </WalletConnect>
                   </div>
                 </div>
               </motion.div>
