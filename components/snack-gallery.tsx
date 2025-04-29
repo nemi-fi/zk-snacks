@@ -24,20 +24,28 @@ type Snack = {
 
 const snacks: Snack[] = [
   {
-    tokenId: 1,
-    name: "Private Shared Steak",
-    description: "Classic, from Graz",
-    claimed: false,
-    color: "orange",
-    image: "/images/private-shared-steak.png",
-  },
-  {
     tokenId: 2,
     name: "Nullifiers in Soy Sauce",
     description: "Make the note hashes salty",
     claimed: false,
     color: "blue",
     image: "/images/nullifiers.png",
+  },
+  {
+    tokenId: 10,
+    name: "Obsidion Ashes",
+    description: 'Pork done "Congratulations"',
+    claimed: false,
+    color: "orange",
+    image: "/images/obsidion-ashes.png",
+  },
+  {
+    tokenId: 5,
+    name: "Baked Noirwhal",
+    description: "Served on the Poseidon2 trident",
+    claimed: false,
+    color: "blue",
+    image: "/images/narwhal.png",
   },
   {
     tokenId: 3,
@@ -56,20 +64,12 @@ const snacks: Snack[] = [
     image: "/images/noir-coffee.png",
   },
   {
-    tokenId: 5,
-    name: "Baked Noirwhal",
-    description: "Served on the Poseidon2 trident",
+    tokenId: 8,
+    name: "A bottle of mezcal",
+    description: "Can't see nothing when drunk",
     claimed: false,
     color: "blue",
-    image: "/images/narwhal.png",
-  },
-  {
-    tokenId: 6,
-    name: "Commit-mints",
-    description: "Devote to freshness",
-    claimed: true,
-    color: "pink",
-    image: "/images/commit-mints.png",
+    image: "/images/mezcal.png",
   },
   {
     tokenId: 7,
@@ -80,12 +80,20 @@ const snacks: Snack[] = [
     image: "/images/hash-brownie.png",
   },
   {
-    tokenId: 8,
-    name: "A bottle of mezcal",
-    description: "Can't see nothing when drunk",
+    tokenId: 1,
+    name: "Private Shared Steak",
+    description: "Classic, from Graz",
     claimed: false,
-    color: "blue",
-    image: "/images/mezcal.png",
+    color: "orange",
+    image: "/images/private-shared-steak.png",
+  },
+  {
+    tokenId: 6,
+    name: "Commit-mints",
+    description: "Devote to freshness",
+    claimed: true,
+    color: "pink",
+    image: "/images/commit-mints.png",
   },
   {
     tokenId: 9,
@@ -94,14 +102,6 @@ const snacks: Snack[] = [
     claimed: true,
     color: "pink",
     image: "/images/clarified-lambs.png",
-  },
-  {
-    tokenId: 10,
-    name: "Obsidion Ashes",
-    description: 'Pork done "Congratulations"',
-    claimed: false,
-    color: "orange",
-    image: "/images/obsidion-ashes.png",
   },
 ];
 
