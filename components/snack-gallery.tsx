@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { LoadingButton } from "./LoadingButton";
 
 type Snack = {
@@ -211,6 +211,7 @@ export function SnackGallery() {
 }
 function SnackItem({ snack }: { snack: Snack }) {
   const account = useAccount();
+  const [shouldCheck, setShouldCheck] = useState(false);
   const snackExistsQuery = useQuery<boolean>({
     queryKey: ["snack", snack.tokenId],
     queryFn: async () => {
@@ -225,9 +226,13 @@ function SnackItem({ snack }: { snack: Snack }) {
       console.log("exists", exists);
       return exists;
     },
-    enabled: !!account,
+    enabled: !!account && shouldCheck,
+    refetchOnReconnect: false,
+    refetchInterval: 0,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchIntervalInBackground: false,
   });
-  console.log("snackExistsQuery.data", snackExistsQuery.data);
   const colorStyles = getColorStyles(snack.color);
 
   async function handleClaim() {
@@ -310,7 +315,14 @@ function SnackItem({ snack }: { snack: Snack }) {
           <p className="text-[#555] text-sm mb-5">{snack.description}</p>
 
           <WalletConnect>
-            {snackExistsQuery.isLoading ? (
+            {!shouldCheck ? (
+              <Button
+                onClick={() => setShouldCheck(true)}
+                className={`w-full ${colorStyles.button} text-white shadow-md`}
+              >
+                Check if claimed
+              </Button>
+            ) : snackExistsQuery.isLoading ? (
               <Button
                 disabled
                 className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
