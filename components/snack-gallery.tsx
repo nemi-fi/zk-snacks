@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 
 type Snack = {
-  id: number;
+  tokenId: number;
   name: string;
   description: string;
   claimed: boolean;
@@ -21,7 +21,7 @@ type Snack = {
 
 const snacks: Snack[] = [
   {
-    id: 1,
+    tokenId: 1,
     name: "Private Shared Steak",
     description: "Classic, from Graz",
     claimed: false,
@@ -29,7 +29,7 @@ const snacks: Snack[] = [
     image: "/images/private-shared-steak.png",
   },
   {
-    id: 2,
+    tokenId: 2,
     name: "Nullifiers in Soy Sauce",
     description: "Make the note hashes salty",
     claimed: false,
@@ -37,7 +37,7 @@ const snacks: Snack[] = [
     image: "/images/nullifiers.png",
   },
   {
-    id: 3,
+    tokenId: 3,
     name: "Nemi-sis Cake",
     description: "Taste of private DeFi",
     claimed: true,
@@ -45,7 +45,7 @@ const snacks: Snack[] = [
     image: "/images/nemi-sis.png",
   },
   {
-    id: 4,
+    tokenId: 4,
     name: "Noir Coffee",
     description: "Like black, but noir",
     claimed: false,
@@ -53,7 +53,7 @@ const snacks: Snack[] = [
     image: "/images/noir-coffee.png",
   },
   {
-    id: 5,
+    tokenId: 5,
     name: "Baked Noirwhal",
     description: "Served on the Poseidon2 trident",
     claimed: false,
@@ -61,7 +61,7 @@ const snacks: Snack[] = [
     image: "/images/narwhal.png",
   },
   {
-    id: 6,
+    tokenId: 6,
     name: "Commit-mints",
     description: "Devote to freshness",
     claimed: true,
@@ -69,7 +69,7 @@ const snacks: Snack[] = [
     image: "/images/commit-mints.png",
   },
   {
-    id: 7,
+    tokenId: 7,
     name: "Hash Brownie",
     description: "Mixed sweetness",
     claimed: false,
@@ -77,7 +77,7 @@ const snacks: Snack[] = [
     image: "/images/hash-brownie.png",
   },
   {
-    id: 8,
+    tokenId: 8,
     name: "A bottle of mezcal",
     description: "Can't see nothing when drunk",
     claimed: false,
@@ -85,7 +85,7 @@ const snacks: Snack[] = [
     image: "/images/mezcal.png",
   },
   {
-    id: 9,
+    tokenId: 9,
     name: "Clarified Lambs",
     description: "Sheeping",
     claimed: true,
@@ -93,7 +93,7 @@ const snacks: Snack[] = [
     image: "/images/clarified-lambs.png",
   },
   {
-    id: 10,
+    tokenId: 10,
     name: "Obsidion Ashes",
     description: 'Pork done "Congratulations"',
     claimed: false,
@@ -134,7 +134,7 @@ const getColorStyles = (color: "orange" | "blue" | "pink") => {
 export function SnackGallery() {
   const account = useAccount();
   const [claimedSnacks, setClaimedSnacks] = useState<number[]>(
-    snacks.filter((snack) => snack.claimed).map((snack) => snack.id),
+    snacks.filter((snack) => snack.claimed).map((snack) => snack.tokenId),
   );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -204,7 +204,7 @@ export function SnackGallery() {
 
             return (
               <motion.div
-                key={snack.id}
+                key={snack.tokenId}
                 className="flex-shrink-0 snap-center"
                 whileHover={{ y: -10, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
@@ -274,7 +274,7 @@ export function SnackGallery() {
                     </p>
 
                     <WalletConnect>
-                      {claimedSnacks.includes(snack.id) ? (
+                      {claimedSnacks.includes(snack.tokenId) ? (
                         <Button
                           disabled
                           className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
@@ -283,7 +283,7 @@ export function SnackGallery() {
                         </Button>
                       ) : (
                         <Button
-                          onClick={() => handleClaim(snack.id)}
+                          onClick={() => handleClaim(snack.tokenId)}
                           className={`w-full ${colorStyles.button} text-white shadow-md`}
                         >
                           Get
