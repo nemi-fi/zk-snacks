@@ -53,8 +53,8 @@ const snacks: Snack[] = [
   },
   {
     tokenId: 8,
-    name: "A bottle of mezcal",
-    description: "Can't see nothing when drunk",
+    name: "A bottle of Mezcal",
+    description: "Blacked out pools",
     color: "blue",
     image: "/images/mezcal.png",
   },
