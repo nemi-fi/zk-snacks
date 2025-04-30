@@ -18,7 +18,7 @@ const sandbox = {
 
 const testnet = {
   node: "https://l2.testnet.nemi.fi",
-  nft: "0x011206203068fff9507ab2efadfe364a42259ebf162047380596a32203e56294",
+  nft: "0x0df0b722ec3e476c556ff437981e10f75fae34f441dffd76e3c9c0a6d240f410",
 };
 
 export const chain = testnet;

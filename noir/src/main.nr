@@ -73,11 +73,12 @@ pub contract NFT {
         assert(token_id != 0, "zero token ID not supported");
         let note = NFTNote::new(token_id, to);
         storage.private_nfts.at(to).insert(note).emit(encode_and_encrypt_note(&mut context, to, to));
+        NFT::at(context.this_address())._finalize_mint_private(token_id).enqueue(&mut context);
     }
 
     #[public]
     #[internal]
-    fn finalize_mint_private(token_id: Field) {
+    fn _finalize_mint_private(token_id: Field) {
         assert(storage.nft_exists.at(token_id).read() == false, "token already exists");
         storage.nft_exists.at(token_id).write(true);
     }
