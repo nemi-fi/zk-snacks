@@ -150,6 +150,31 @@ export function SnackGallery() {
     },
   });
 
+  const mySnacksQuery = useQuery({
+    queryKey: ["my-snacks", account?.address?.toString()],
+    queryFn: async () => {
+      if (!account) return {};
+
+      const readonlyNftContract = await getNftContract(account);
+
+      const pageIndex = 0;
+      const [nfts] = (await readonlyNftContract.methods
+        .get_private_nfts(account.address, pageIndex)
+        .simulate()) as [bigint[], boolean];
+      console.log("my nfts", nfts);
+
+      const ownedNfts: Record<number, boolean> = {};
+      for (const tokenId of nfts) {
+        if (tokenId) {
+          ownedNfts[Number(tokenId)] = true;
+        }
+      }
+
+      return ownedNfts;
+    },
+    enabled: !!account,
+  });
+
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const { current } = scrollContainerRef;
@@ -172,7 +197,7 @@ export function SnackGallery() {
           zkSnacks Collection
         </h1>
         <p className="text-[#333] text-base sm:text-lg max-w-2xl mx-auto">
-          Claim your cryptographically delicious treats. Each zkSnack proves you
+          Mint your cryptographically delicious treats. Each zkSnack proves you
           own it without revealing your identity.
         </p>
         {account ? (
@@ -210,6 +235,7 @@ export function SnackGallery() {
                 key={snack.tokenId}
                 snack={snack}
                 snacksExistQuery={snacksExistQuery}
+                mySnacksQuery={mySnacksQuery}
               />
             );
           })}
@@ -229,19 +255,22 @@ export function SnackGallery() {
 function SnackItem({
   snack,
   snacksExistQuery,
+  mySnacksQuery,
 }: {
   snack: Snack;
   snacksExistQuery: UseQueryResult<Record<number, boolean>>;
+  mySnacksQuery: UseQueryResult<Record<number, boolean>>;
 }) {
   const account = useAccount();
   const colorStyles = getColorStyles(snack.color);
 
-  async function handleClaim() {
+  async function handleMint() {
     if (!account) {
       alert("Please connect your account");
       return;
     }
     const nftContract = await getNftContract(account);
+    console.log("minting", snack.tokenId, snack.name);
     const tx = nftContract.methods
       .mint_private(account.address, snack.tokenId)
       .send();
@@ -327,15 +356,18 @@ function SnackItem({
               disabled
               className={`w-full ${colorStyles.disabledButton} cursor-not-allowed`}
             >
-              Claimed
+              Minted{" "}
+              {mySnacksQuery.isSuccess && mySnacksQuery.data[snack.tokenId]
+                ? "by you"
+                : ""}
             </Button>
           ) : (
             <WalletConnect>
               <LoadingButton
-                onClick={handleClaim}
+                onClick={handleMint}
                 className={`w-full ${colorStyles.button} text-white shadow-md`}
               >
-                Get
+                Mint
               </LoadingButton>
             </WalletConnect>
           )}
