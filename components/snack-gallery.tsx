@@ -18,7 +18,6 @@ type Snack = {
   tokenId: number;
   name: string;
   description: string;
-  claimed: boolean;
   color: "orange" | "blue" | "pink";
   image: string;
 };
@@ -28,7 +27,6 @@ const snacks: Snack[] = [
     tokenId: 2,
     name: "Nullifiers in Soy Sauce",
     description: "Make the note hashes salty",
-    claimed: false,
     color: "blue",
     image: "/images/nullifiers.png",
   },
@@ -36,7 +34,6 @@ const snacks: Snack[] = [
     tokenId: 10,
     name: "Obsidion Ashes",
     description: 'Pork done "Congratulations"',
-    claimed: false,
     color: "orange",
     image: "/images/obsidion-ashes.png",
   },
@@ -44,7 +41,6 @@ const snacks: Snack[] = [
     tokenId: 3,
     name: "Nemi-sis Cake",
     description: "Taste of private DeFi",
-    claimed: true,
     color: "pink",
     image: "/images/nemi-sis.png",
   },
@@ -52,7 +48,6 @@ const snacks: Snack[] = [
     tokenId: 4,
     name: "Noir Coffee",
     description: "Like black, but noir",
-    claimed: false,
     color: "orange",
     image: "/images/noir-coffee.png",
   },
@@ -60,7 +55,6 @@ const snacks: Snack[] = [
     tokenId: 8,
     name: "A bottle of mezcal",
     description: "Can't see nothing when drunk",
-    claimed: false,
     color: "blue",
     image: "/images/mezcal.png",
   },
@@ -68,7 +62,6 @@ const snacks: Snack[] = [
     tokenId: 7,
     name: "Hash Brownie",
     description: "Mixed sweetness",
-    claimed: false,
     color: "orange",
     image: "/images/hash-brownie.png",
   },
@@ -76,7 +69,6 @@ const snacks: Snack[] = [
     tokenId: 5,
     name: "Baked Narwhal",
     description: "Served on the Poseidon2 trident",
-    claimed: false,
     color: "blue",
     image: "/images/narwhal.png",
   },
@@ -84,7 +76,6 @@ const snacks: Snack[] = [
     tokenId: 1,
     name: "Private Shared Steak",
     description: "Classic, from Graz",
-    claimed: false,
     color: "orange",
     image: "/images/private-shared-steak.png",
   },
@@ -92,7 +83,6 @@ const snacks: Snack[] = [
     tokenId: 6,
     name: "Commit-mints",
     description: "Devote to freshness",
-    claimed: true,
     color: "pink",
     image: "/images/commit-mints.png",
   },
@@ -100,7 +90,6 @@ const snacks: Snack[] = [
     tokenId: 9,
     name: "Clarified Lambs",
     description: "Sheeping",
-    claimed: true,
     color: "pink",
     image: "/images/clarified-lambs.png",
   },
