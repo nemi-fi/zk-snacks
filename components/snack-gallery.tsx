@@ -141,7 +141,11 @@ export function SnackGallery() {
           readonlyNftContract.methods.nft_exists(s.tokenId).request(),
         ),
       );
-      const results = await simulatePublicCalls(aztecNode, calls);
+      const results = await Promise.all(
+        calls.map(
+          async (call) => (await simulatePublicCalls(aztecNode, [call]))[0],
+        ),
+      );
       const ret: Record<number, boolean> = Object.fromEntries(
         snacks.map((snack, i) => [snack.tokenId, results[i][0].toBool()]),
       );
